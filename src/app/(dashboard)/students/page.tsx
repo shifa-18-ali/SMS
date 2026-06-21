@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Search, Plus, Filter, ChevronDown, MoreHorizontal, Mail, Phone } from "lucide-react";
 import { students } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 
 function Avatar({ initials, grade }: { initials: string; grade: string }) {
   const colors: Record<string, string> = { "8":"from-rose-400 to-rose-600","9":"from-amber-400 to-amber-600","10":"from-teal-400 to-teal-600","11":"from-violet-400 to-violet-600","12":"from-blue-400 to-blue-600" };
@@ -13,11 +14,14 @@ function Avatar({ initials, grade }: { initials: string; grade: string }) {
 }
 
 export default function StudentsPage() {
+  const { user } = useAuth();
+  const tenantStudents = user?.role === "super-admin" ? students : students.filter(s => s.schoolId === user?.schoolId);
+
   const [search, setSearch] = useState("");
   const [filterGrade, setFilterGrade] = useState("All");
   const [filterFee, setFilterFee] = useState("All");
 
-  const filtered = students.filter((s) => {
+  const filtered = tenantStudents.filter((s) => {
     const q = search.toLowerCase();
     const matchSearch = !q || s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
     const matchGrade = filterGrade === "All" || s.grade === filterGrade;
@@ -31,7 +35,7 @@ export default function StudentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">Student Management</h1>
-          <p className="text-sm text-surface-500 mt-0.5">{students.length} total students enrolled</p>
+          <p className="text-sm text-surface-500 mt-0.5">{tenantStudents.length} total students enrolled</p>
         </div>
         <button className="btn-primary text-sm self-start sm:self-auto">
           <Plus className="w-4 h-4 mr-1.5" /> Add Student
@@ -41,10 +45,10 @@ export default function StudentsPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label:"Total",   val: students.length,                                 color:"bg-surface-100 text-surface-700" },
-          { label:"Active",  val: students.filter(s=>s.fees!=="Overdue").length,   color:"bg-teal-100    text-teal-700"    },
-          { label:"Pending", val: students.filter(s=>s.fees==="Pending").length,   color:"bg-amber-100   text-amber-700"   },
-          { label:"Overdue", val: students.filter(s=>s.fees==="Overdue").length,   color:"bg-red-100     text-red-700"     },
+          { label:"Total",   val: tenantStudents.length,                                 color:"bg-surface-100 text-surface-700" },
+          { label:"Active",  val: tenantStudents.filter(s=>s.fees!=="Overdue").length,   color:"bg-teal-100    text-teal-700"    },
+          { label:"Pending", val: tenantStudents.filter(s=>s.fees==="Pending").length,   color:"bg-amber-100   text-amber-700"   },
+          { label:"Overdue", val: tenantStudents.filter(s=>s.fees==="Overdue").length,   color:"bg-red-100     text-red-700"     },
         ].map((c) => (
           <div key={c.label} className={`card p-4 flex items-center gap-3`}>
             <div className={`w-10 h-10 rounded-xl ${c.color} flex items-center justify-center text-lg font-extrabold`}>{c.val}</div>
@@ -134,7 +138,7 @@ export default function StudentsPage() {
 
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-surface-100 bg-surface-50/50">
-          <p className="text-sm text-surface-500">Showing <strong>{filtered.length}</strong> of <strong>{students.length}</strong> students</p>
+          <p className="text-sm text-surface-500">Showing <strong>{filtered.length}</strong> of <strong>{tenantStudents.length}</strong> students</p>
           <div className="flex gap-1">
             {[1,2,3].map(p=>(
               <button key={p} className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${p===1?"bg-primary-600 text-white":"bg-white border border-surface-200 text-surface-600 hover:bg-surface-50"}`}>{p}</button>

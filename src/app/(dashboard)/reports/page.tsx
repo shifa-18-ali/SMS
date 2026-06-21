@@ -3,19 +3,27 @@ import { Download, BarChart3, Users, Wallet, CalendarCheck } from "lucide-react"
 import {
   examPerformance, attendanceTrend, feeMonthly, adminKPIs
 } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, Legend,
 } from "recharts";
 
-const REPORT_CARDS = [
-  { label: "Total Students",   val: adminKPIs.totalStudents.toLocaleString(), icon: Users,         color: "bg-teal-100 text-teal-600"     },
-  { label: "Total Teachers",   val: String(adminKPIs.totalTeachers),          icon: Users,         color: "bg-violet-100 text-violet-600" },
-  { label: "Avg Attendance",   val: `${adminKPIs.attendanceRate}%`,           icon: CalendarCheck, color: "bg-amber-100 text-amber-600"   },
-  { label: "Fee Collection",   val: `$${(adminKPIs.feeCollected/1000).toFixed(0)}K`, icon: Wallet, color: "bg-emerald-100 text-emerald-600" },
-];
+// REPORT_CARDS moved inside component
 
 export default function ReportsPage() {
+  const { user } = useAuth();
+  const kpis = adminKPIs[user?.schoolId as keyof typeof adminKPIs] || adminKPIs["S-001"];
+  const tenantExamPerformance = user?.role === "super-admin" ? examPerformance : examPerformance.filter(e => e.schoolId === user?.schoolId);
+  const tenantAttendanceTrend = user?.role === "super-admin" ? attendanceTrend : attendanceTrend.filter(a => a.schoolId === user?.schoolId);
+  const tenantFeeMonthly = user?.role === "super-admin" ? feeMonthly : feeMonthly.filter(f => f.schoolId === user?.schoolId);
+
+  const REPORT_CARDS = [
+    { label: "Total Students",   val: kpis.totalStudents.toLocaleString(), icon: Users,         color: "bg-teal-100 text-teal-600"     },
+    { label: "Total Teachers",   val: String(kpis.totalTeachers),          icon: Users,         color: "bg-violet-100 text-violet-600" },
+    { label: "Avg Attendance",   val: `${kpis.attendanceRate}%`,           icon: CalendarCheck, color: "bg-amber-100 text-amber-600"   },
+    { label: "Fee Collection",   val: `$${(kpis.feeCollected/1000).toFixed(0)}K`, icon: Wallet, color: "bg-emerald-100 text-emerald-600" },
+  ];
   return (
     <div className="space-y-6 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -48,7 +56,7 @@ export default function ReportsPage() {
           <h3 className="font-bold text-surface-900 mb-1">Exam Performance by Subject</h3>
           <p className="text-xs text-surface-500 mb-5">Average vs highest scores</p>
           <ResponsiveContainer width="100%" height={230}>
-            <BarChart data={examPerformance} margin={{ top:5,right:5,left:-20,bottom:0 }}>
+            <BarChart data={tenantExamPerformance} margin={{ top:5,right:5,left:-20,bottom:0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="subject" tick={{fill:"#94a3b8",fontSize:12}} axisLine={false} tickLine={false} />
               <YAxis tick={{fill:"#94a3b8",fontSize:12}} axisLine={false} tickLine={false} domain={[0,100]} />
@@ -66,7 +74,7 @@ export default function ReportsPage() {
           <h3 className="font-bold text-surface-900 mb-1">Weekly Attendance Trend</h3>
           <p className="text-xs text-surface-500 mb-5">Present vs Absent this week</p>
           <ResponsiveContainer width="100%" height={230}>
-            <LineChart data={attendanceTrend} margin={{top:5,right:5,left:-20,bottom:0}}>
+            <LineChart data={tenantAttendanceTrend} margin={{top:5,right:5,left:-20,bottom:0}}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="day" tick={{fill:"#94a3b8",fontSize:12}} axisLine={false} tickLine={false} />
               <YAxis tick={{fill:"#94a3b8",fontSize:12}} axisLine={false} tickLine={false} />
@@ -84,7 +92,7 @@ export default function ReportsPage() {
         <h3 className="font-bold text-surface-900 mb-1">Monthly Fee Collection vs Pending</h3>
         <p className="text-xs text-surface-500 mb-5">Financial trend over the academic year</p>
         <ResponsiveContainer width="100%" height={240}>
-          <AreaChart data={feeMonthly} margin={{top:5,right:10,left:10,bottom:0}}>
+          <AreaChart data={tenantFeeMonthly} margin={{top:5,right:10,left:10,bottom:0}}>
             <defs>
               <linearGradient id="gradCollected" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%"  stopColor="#14b8a6" stopOpacity={0.3} />

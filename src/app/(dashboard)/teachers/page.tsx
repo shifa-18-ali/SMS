@@ -2,10 +2,14 @@
 import { useState } from "react";
 import { Search, Plus, MoreHorizontal, Mail, Phone } from "lucide-react";
 import { teachers } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 
 export default function TeachersPage() {
+  const { user } = useAuth();
+  const tenantTeachers = user?.role === "super-admin" ? teachers : teachers.filter(t => t.schoolId === user?.schoolId);
+
   const [search, setSearch] = useState("");
-  const filtered = teachers.filter(t => {
+  const filtered = tenantTeachers.filter(t => {
     const q = search.toLowerCase();
     return !q || t.name.toLowerCase().includes(q) || t.subject.toLowerCase().includes(q);
   });
@@ -15,7 +19,7 @@ export default function TeachersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">Teacher Management</h1>
-          <p className="text-sm text-surface-500 mt-0.5">{teachers.length} teaching staff members</p>
+          <p className="text-sm text-surface-500 mt-0.5">{tenantTeachers.length} teaching staff members</p>
         </div>
         <button className="btn-primary text-sm self-start sm:self-auto">
           <Plus className="w-4 h-4 mr-1.5" /> Add Teacher

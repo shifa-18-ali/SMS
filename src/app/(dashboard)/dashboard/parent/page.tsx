@@ -1,7 +1,21 @@
 "use client";
 import { User, CalendarCheck, Wallet, BookOpen } from "lucide-react";
-import { parentChildInfo } from "@/lib/mockData";
 import Link from "next/link";
+
+const parentChildInfo = {
+  name: "Alex Johnson",
+  grade: "10",
+  section: "A",
+  rollNo: "10A01",
+  classTeacher: "Mrs. Sarah Jenkins",
+  attendance: { percentage: 93, present: 142, absent: 8 },
+  fees: { status: "Pending", amount: 1200, dueDate: "June 30, 2026", paidDate: null },
+  recentMarks: [
+    { subject: "Math", marks: 88, total: 100 },
+    { subject: "Physics", marks: 76, total: 100 },
+    { subject: "English", marks: 95, total: 100 },
+  ]
+};
 
 export default function ParentDashboard() {
   const { name, grade, section, rollNo, classTeacher, attendance, fees, recentMarks } = parentChildInfo;

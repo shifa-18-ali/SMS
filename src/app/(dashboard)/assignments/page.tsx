@@ -2,12 +2,16 @@
 import { useState } from "react";
 import { Plus, Search, Users, Calendar, MoreHorizontal } from "lucide-react";
 import { assignments } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AssignmentsPage() {
+  const { user } = useAuth();
+  const tenantAssignments = user?.role === "super-admin" ? assignments : assignments.filter(a => a.schoolId === user?.schoolId);
+
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const filtered = assignments.filter(a => {
+  const filtered = tenantAssignments.filter(a => {
     const q = search.toLowerCase();
     const matchQ = !q || a.title.toLowerCase().includes(q) || a.subject.toLowerCase().includes(q);
     const matchS = filterStatus === "All" || a.status === filterStatus;
@@ -35,9 +39,9 @@ export default function AssignmentsPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label:"Total",     val: assignments.length,                                  color:"text-surface-700 bg-surface-100" },
-          { label:"Active",    val: assignments.filter(a=>a.status==="Active").length,   color:"text-blue-700   bg-blue-100"   },
-          { label:"Overdue",   val: assignments.filter(a=>a.status==="Overdue").length,  color:"text-red-700    bg-red-100"    },
+          { label:"Total",     val: tenantAssignments.length,                                  color:"text-surface-700 bg-surface-100" },
+          { label:"Active",    val: tenantAssignments.filter(a=>a.status==="Active").length,   color:"text-blue-700   bg-blue-100"   },
+          { label:"Overdue",   val: tenantAssignments.filter(a=>a.status==="Overdue").length,  color:"text-red-700    bg-red-100"    },
         ].map(s=>(
           <div key={s.label} className="card p-4 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center text-xl font-extrabold`}>{s.val}</div>

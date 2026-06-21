@@ -1,8 +1,23 @@
 "use client";
 import { CalendarCheck, BookOpen, ClipboardList, Award } from "lucide-react";
-import { studentAttendanceSummary, studentResults, studentAssignments } from "@/lib/mockData";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
 import Link from "next/link";
+
+const studentAttendanceSummary = { present: 142, absent: 8, late: 3, total: 153, percentage: 93 };
+
+const studentResults = [
+  { subject: "Math", marks: 88, grade: "A" },
+  { subject: "Physics", marks: 76, grade: "B+" },
+  { subject: "Chemistry", marks: 82, grade: "A-" },
+  { subject: "English", marks: 95, grade: "A+" },
+  { subject: "History", marks: 68, grade: "B" },
+];
+
+const studentAssignments = [
+  { id: "1", title: "Algebra Worksheet", subject: "Math", dueDate: "Tomorrow", status: "Pending" },
+  { id: "2", title: "Physics Lab Report", subject: "Physics", dueDate: "Next Week", status: "Pending" },
+  { id: "3", title: "Essay on Romeo & Juliet", subject: "English", dueDate: "Yesterday", status: "Submitted" },
+];
 
 export default function StudentDashboard() {
   const { present, absent, late, total, percentage } = studentAttendanceSummary;

@@ -1,144 +1,140 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-import { BookOpen, Mail, Lock, ArrowRight, ShieldCheck } from "lucide-react";
-import { useAuth, UserRole } from "@/context/AuthContext";
-
-const ROLES: { role: UserRole; label: string; desc: string; color: string; email: string }[] = [
-  { role: "admin",   label: "Administrator", desc: "Full institutional control",      color: "from-teal-500 to-teal-600",     email: "admin@edunexus.edu"   },
-  { role: "teacher", label: "Teacher",       desc: "Classes, marks & assignments",    color: "from-violet-500 to-violet-600", email: "sarah.j@edunexus.edu" },
-  { role: "student", label: "Student",       desc: "Grades, attendance & schedule",   color: "from-amber-500 to-amber-600",   email: "alex.j@edunexus.edu"  },
-  { role: "parent",  label: "Parent",        desc: "Child progress & fee status",     color: "from-rose-500 to-rose-600",     email: "robert.j@gmail.com"   },
-];
+import { useAuth, Role } from "@/context/AuthContext";
+import { BookOpen, User, Users, GraduationCap, ShieldCheck, Building2 } from "lucide-react";
+import { schools } from "@/lib/mockData";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<UserRole>("admin");
+  const [role, setRole] = useState<Role>("admin");
+  const [schoolId, setSchoolId] = useState<string>(schools[0].id);
   const [loading, setLoading] = useState(false);
 
-  const currentRole = ROLES.find((r) => r.role === selectedRole)!;
+  const roles: { id: Role; label: string; icon: React.ElementType }[] = [
+    { id: "super-admin", label: "Super Admin", icon: ShieldCheck },
+    { id: "admin",       label: "School Admin",icon: User },
+    { id: "teacher",     label: "Teacher",     icon: BookOpen },
+    { id: "student",     label: "Student",     icon: GraduationCap },
+    { id: "parent",      label: "Parent",      icon: Users },
+  ];
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    login(selectedRole);
+    // Simulate network delay
+    setTimeout(() => {
+      login(role, role === "super-admin" ? null : schoolId);
+    }, 800);
   };
 
   return (
-    <div className="min-h-screen bg-surface-950 flex items-center justify-center p-4">
-      {/* Background */}
-      <div className="absolute top-1/3 left-1/4  w-72 h-72 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-accent-500/10  rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-0 rounded-3xl overflow-hidden shadow-2xl border border-white/10">
-
-        {/* Left panel */}
-        <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-surface-900 to-surface-800 border-r border-white/10">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-glow">
-              <BookOpen className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">EduNexus</span>
-          </Link>
-
-          <div>
-            <h1 className="text-3xl font-extrabold text-white leading-tight mb-4">
-              Your campus, <br />
-              <span className="gradient-text">digitally transformed.</span>
-            </h1>
-            <p className="text-surface-400 text-sm leading-relaxed mb-8">
-              Access your personalized dashboard with real-time data on academics, attendance, fees, and communication.
-            </p>
-            <div className="flex flex-col gap-3">
-              {[
-                "Role-based access for all stakeholders",
-                "Real-time analytics and reports",
-                "Automated fee & attendance tracking",
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-sm text-surface-300">
-                  <ShieldCheck className="w-4 h-4 text-primary-400 flex-shrink-0" />
-                  {item}
-                </div>
-              ))}
-            </div>
+    <div className="min-h-screen bg-surface-900 flex flex-col md:flex-row">
+      {/* Left side - Branding */}
+      <div className="md:w-1/2 p-10 flex flex-col justify-between bg-gradient-to-br from-primary-900 to-surface-900 relative overflow-hidden hidden md:flex">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_50%_50%,_rgba(20,184,166,1),transparent_70%)]" />
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-glow">
+            <BookOpen className="w-6 h-6 text-white" />
           </div>
-
-          <p className="text-surface-600 text-xs">© 2026 EduNexus. All rights reserved.</p>
+          <span className="text-2xl font-bold text-white tracking-tight">EduNexus SaaS</span>
+        </div>
+        
+        <div className="relative z-10 max-w-lg">
+          <h1 className="text-5xl font-extrabold text-white mb-6 leading-tight">
+            The Multi-Tenant <br /> <span className="gradient-text">School Platform</span>
+          </h1>
+          <p className="text-primary-100/80 text-lg leading-relaxed">
+            Manage unlimited schools from a single enterprise platform. Experience complete data isolation, role-based access control, and powerful analytics.
+          </p>
         </div>
 
-        {/* Right panel – form */}
-        <div className="flex flex-col justify-center p-8 bg-surface-900">
-          <h2 className="text-2xl font-bold text-white mb-1">Sign in to your portal</h2>
-          <p className="text-surface-400 text-sm mb-8">Select your role to access the right dashboard.</p>
+        <div className="relative z-10 flex items-center gap-4 text-sm text-primary-200/60 font-medium">
+          <span>Enterprise Grade</span> • <span>Multi-Tenant</span> • <span>SSO Ready</span>
+        </div>
+      </div>
 
-          {/* Role selector */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {ROLES.map((r) => (
-              <button
-                key={r.role}
-                onClick={() => setSelectedRole(r.role)}
-                className={`p-3 rounded-xl border text-left transition-all duration-200 ${
-                  selectedRole === r.role
-                    ? "border-primary-500 bg-primary-500/10 shadow-glow"
-                    : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20"
-                }`}
-              >
-                <div className={`inline-block px-2 py-0.5 rounded-md text-xs font-bold text-white bg-gradient-to-r ${r.color} mb-1`}>
-                  {r.label}
-                </div>
-                <p className="text-surface-400 text-xs">{r.desc}</p>
-              </button>
-            ))}
+      {/* Right side - Login Form */}
+      <div className="md:w-1/2 flex items-center justify-center p-6 bg-surface-50 relative">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center md:text-left">
+            <h2 className="text-3xl font-extrabold text-surface-900 mb-2">Welcome Back</h2>
+            <p className="text-surface-500">Sign in to your portal to continue</p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-6">
+            
+            {/* Role Selection */}
             <div>
-              <label className="text-sm font-medium text-surface-300 block mb-1.5">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
-                <input
-                  type="email"
-                  value={currentRole.email}
-                  readOnly
-                  className="input-field pl-10 bg-surface-800 border-surface-700 text-surface-300 focus:ring-primary-500 cursor-default"
-                />
+              <label className="text-sm font-semibold text-surface-700 block mb-3">Select your role</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {roles.map((r) => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setRole(r.id)}
+                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 ${
+                      role === r.id
+                        ? "border-primary-500 bg-primary-50 text-primary-700 shadow-sm scale-[1.02]"
+                        : "border-surface-200 bg-white text-surface-500 hover:border-surface-300 hover:bg-surface-100"
+                    }`}
+                  >
+                    <r.icon className="w-5 h-5" />
+                    <span className="text-xs font-bold">{r.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-sm font-medium text-surface-300">Password</label>
-                <a href="#" className="text-xs text-primary-400 hover:text-primary-300 transition-colors">Forgot password?</a>
+
+            {/* Tenant Selection (Hidden for Super Admin) */}
+            {role !== "super-admin" && (
+              <div className="animate-fade-in">
+                <label className="text-sm font-semibold text-surface-700 block mb-2">Select School (Tenant)</label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-surface-400" />
+                  <select 
+                    value={schoolId} 
+                    onChange={(e) => setSchoolId(e.target.value)}
+                    className="input-field pl-10 h-12 text-sm appearance-none font-medium"
+                  >
+                    {schools.map(school => (
+                      <option key={school.id} value={school.id}>{school.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-xs text-surface-400 mt-1.5 ml-1">Simulates tenant-based subdomain (e.g. edunexus.school.com)</p>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
-                <input
-                  type="password"
-                  defaultValue="demo1234"
-                  className="input-field pl-10 bg-surface-800 border-surface-700 text-surface-300 focus:ring-primary-500"
-                />
+            )}
+
+            {/* Credentials */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-surface-700 block mb-2">Email Address</label>
+                <input type="email" required defaultValue="demo@edunexus.com" className="input-field h-12" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold text-surface-700 block mb-2">Password</label>
+                <input type="password" required defaultValue="password123" className="input-field h-12" />
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all shadow-glow mt-2 ${
-                loading ? "bg-primary-700 opacity-70 cursor-not-allowed" : "bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 hover:-translate-y-0.5"
-              }`}
+              className="w-full h-12 bg-gradient-to-r from-primary-600 to-teal-500 hover:from-primary-700 hover:to-teal-600 text-white font-bold rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2 hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0"
             >
               {loading ? (
-                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Signing in...</>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <>Sign in as {currentRole.label} <ArrowRight className="w-4 h-4" /></>
+                "Sign In"
               )}
             </button>
           </form>
 
-          <p className="text-center text-surface-500 text-xs mt-6">
-            Demo mode — all data is simulated for presentation purposes.
-          </p>
+          <div className="text-center">
+            <p className="text-sm text-surface-500">
+              Need help accessing your account? <a href="#" className="text-primary-600 font-semibold hover:underline">Contact Support</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

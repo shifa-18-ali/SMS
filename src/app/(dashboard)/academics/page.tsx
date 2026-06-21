@@ -1,11 +1,16 @@
 "use client";
 import { Building2, BookOpen, Plus, Users, MoreHorizontal } from "lucide-react";
 import { classes, subjects } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
 type Tab = "Classes" | "Subjects";
 
 export default function AcademicsPage() {
+  const { user } = useAuth();
+  const tenantClasses = user?.role === "super-admin" ? classes : classes.filter(c => c.schoolId === user?.schoolId);
+  const tenantSubjects = user?.role === "super-admin" ? subjects : subjects.filter(s => s.schoolId === user?.schoolId);
+
   const [tab, setTab] = useState<Tab>("Classes");
 
   return (
@@ -29,7 +34,7 @@ export default function AcademicsPage() {
 
       {tab === "Classes" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {classes.map(c => {
+          {tenantClasses.map(c => {
             const colors = ["from-teal-500 to-teal-600","from-violet-500 to-violet-600","from-amber-500 to-amber-600","from-rose-500 to-rose-600","from-blue-500 to-blue-600"];
             const idx = parseInt(c.id.replace("CLS","")) - 1;
             return (
@@ -78,7 +83,7 @@ export default function AcademicsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-50">
-                {subjects.map(s=>{
+                {tenantSubjects.map(s=>{
                   const deptBadge: Record<string,string> = {Science:"badge-info",Technology:"badge-default",Arts:"badge-warning",Humanities:"badge-success"};
                   return (
                     <tr key={s.id} className="hover:bg-surface-50 transition-colors">

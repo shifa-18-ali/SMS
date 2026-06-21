@@ -2,17 +2,22 @@
 import { useState } from "react";
 import { CheckCircle2, XCircle, Clock, Calendar, Save } from "lucide-react";
 import { attendanceRecords, attendanceTrend } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 type Status = "Present" | "Absent" | "Late";
 
 export default function AttendancePage() {
+  const { user } = useAuth();
+  const tenantRecords = user?.role === "super-admin" ? attendanceRecords : attendanceRecords.filter(r => r.schoolId === user?.schoolId);
+  const tenantTrend = user?.role === "super-admin" ? attendanceTrend : attendanceTrend.filter(t => t.schoolId === user?.schoolId);
+
   const today = new Date().toISOString().split("T")[0];
   const [date, setDate] = useState(today);
   const [selectedClass, setSelectedClass] = useState("10A");
   const [records, setRecords] = useState<Record<string, Status>>(() => {
     const init: Record<string, Status> = {};
-    attendanceRecords.forEach(r => { init[r.studentId] = r.status; });
+    tenantRecords.forEach(r => { init[r.studentId] = r.status as Status; });
     return init;
   });
   const [saved, setSaved] = useState(false);
@@ -71,10 +76,10 @@ export default function AttendancePage() {
           <div className="flex items-center justify-between p-4 border-b border-surface-100 bg-surface-50/50">
             <div>
               <h3 className="font-bold text-surface-900">Class {selectedClass}</h3>
-              <p className="text-xs text-surface-400">{attendanceRecords.length} students</p>
+              <p className="text-xs text-surface-400">{tenantRecords.length} students</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={()=>{ const n:Record<string,Status>={}; attendanceRecords.forEach(r=>{n[r.studentId]="Present";}); setRecords(n); setSaved(false); }} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors">
+              <button onClick={()=>{ const n:Record<string,Status>={}; tenantRecords.forEach(r=>{n[r.studentId]="Present";}); setRecords(n); setSaved(false); }} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors">
                 All Present
               </button>
               <button onClick={()=>setSaved(true)} className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5">
@@ -83,7 +88,7 @@ export default function AttendancePage() {
             </div>
           </div>
           <div className="divide-y divide-surface-50">
-            {attendanceRecords.map((r) => (
+            {tenantRecords.map((r) => (
               <div key={r.studentId} className="flex items-center justify-between px-4 py-3.5 hover:bg-surface-50/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
@@ -118,7 +123,7 @@ export default function AttendancePage() {
         <div className="card p-5">
           <h3 className="font-bold text-surface-900 mb-4">Weekly Trend</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={attendanceTrend} layout="vertical" margin={{top:0,right:10,left:-10,bottom:0}}>
+            <BarChart data={tenantTrend} layout="vertical" margin={{top:0,right:10,left:-10,bottom:0}}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
               <XAxis type="number" tick={{fill:"#94a3b8",fontSize:11}} axisLine={false} tickLine={false} domain={[0,100]} tickFormatter={v=>`${v}%`} />
               <YAxis type="category" dataKey="day" tick={{fill:"#94a3b8",fontSize:11}} axisLine={false} tickLine={false} />

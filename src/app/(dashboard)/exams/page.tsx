@@ -2,10 +2,15 @@
 import { useState } from "react";
 import { Plus, BookOpen, Calendar, Trophy } from "lucide-react";
 import { exams, results } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 
 type Tab = "Exams" | "Results";
 
 export default function ExamsPage() {
+  const { user } = useAuth();
+  const tenantExams = user?.role === "super-admin" ? exams : exams.filter(e => e.schoolId === user?.schoolId);
+  const tenantResults = user?.role === "super-admin" ? results : results.filter(r => r.schoolId === user?.schoolId);
+
   const [tab, setTab] = useState<Tab>("Exams");
 
   const statusBadge = (s: string) => {
@@ -45,9 +50,9 @@ export default function ExamsPage() {
           {/* Summary */}
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label:"Total Exams",    val: exams.length,                                color:"bg-blue-100  text-blue-700"   },
-              { label:"Upcoming",       val: exams.filter(e=>e.status==="Upcoming").length,color:"bg-amber-100 text-amber-700"  },
-              { label:"Completed",      val: exams.filter(e=>e.status==="Completed").length,color:"bg-teal-100  text-teal-700"  },
+              { label:"Total Exams",    val: tenantExams.length,                                color:"bg-blue-100  text-blue-700"   },
+              { label:"Upcoming",       val: tenantExams.filter(e=>e.status==="Upcoming").length,color:"bg-amber-100 text-amber-700"  },
+              { label:"Completed",      val: tenantExams.filter(e=>e.status==="Completed").length,color:"bg-teal-100  text-teal-700"  },
             ].map(s=>(
               <div key={s.label} className="card p-4 flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center text-xl font-extrabold`}>{s.val}</div>
@@ -57,7 +62,7 @@ export default function ExamsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {exams.map(e => (
+            {tenantExams.map(e => (
               <div key={e.id} className="card p-5 hover:shadow-card-md transition-shadow">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -106,7 +111,7 @@ export default function ExamsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-50">
-                {results.map(r=>(
+                {tenantResults.map(r=>(
                   <tr key={r.id} className="hover:bg-surface-50 transition-colors">
                     <td className="px-4 py-3.5 font-semibold text-surface-900">{r.name}</td>
                     <td className="px-4 py-3.5 text-surface-600">{r.subject}</td>

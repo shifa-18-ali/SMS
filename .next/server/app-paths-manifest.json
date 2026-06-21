@@ -1,10 +1,21 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
-  "/(dashboard)/attendance/page": "app/(dashboard)/attendance/page.js",
-  "/(dashboard)/exams/page": "app/(dashboard)/exams/page.js",
-  "/(dashboard)/notices/page": "app/(dashboard)/notices/page.js",
+  "/(dashboard)/academics/page": "app/(dashboard)/academics/page.js",
   "/(dashboard)/assignments/page": "app/(dashboard)/assignments/page.js",
+  "/(dashboard)/dashboard/admin/page": "app/(dashboard)/dashboard/admin/page.js",
+  "/(dashboard)/dashboard/parent/page": "app/(dashboard)/dashboard/parent/page.js",
+  "/(dashboard)/attendance/page": "app/(dashboard)/attendance/page.js",
+  "/(dashboard)/dashboard/student/page": "app/(dashboard)/dashboard/student/page.js",
+  "/(dashboard)/exams/page": "app/(dashboard)/exams/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/dashboard/super-admin/page": "app/(dashboard)/dashboard/super-admin/page.js",
+  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/(dashboard)/notices/page": "app/(dashboard)/notices/page.js",
   "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
-  "/(dashboard)/dashboard/student/page": "app/(dashboard)/dashboard/student/page.js"
+  "/(dashboard)/students/page": "app/(dashboard)/students/page.js",
+  "/(dashboard)/dashboard/teacher/page": "app/(dashboard)/dashboard/teacher/page.js",
+  "/(dashboard)/teachers/page": "app/(dashboard)/teachers/page.js",
+  "/(dashboard)/fees/page": "app/(dashboard)/fees/page.js"
 }

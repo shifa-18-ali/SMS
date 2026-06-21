@@ -8,9 +8,10 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import {
-  adminKPIs, attendanceTrend, feeMonthly, examPerformance, recentActivities,
+  adminKPIs, attendanceTrend, feeMonthly, examPerformance
 } from "@/lib/mockData";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const PIE_COLORS = ["#14b8a6", "#e2e8f0"];
 
@@ -68,9 +69,14 @@ function ActivityIcon({ type }: { type: string }) {
 }
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
+  const kpis = adminKPIs[user?.schoolId as keyof typeof adminKPIs] || adminKPIs["S-001"];
+  const tenantFeeMonthly = feeMonthly.filter(f => f.schoolId === user?.schoolId);
+  const tenantExamPerformance = examPerformance.filter(e => e.schoolId === user?.schoolId);
+
   const feePieData = [
-    { name: "Collected", value: adminKPIs.feeCollected },
-    { name: "Pending",   value: adminKPIs.feePending   },
+    { name: "Collected", value: kpis.feeCollected },
+    { name: "Pending",   value: kpis.feePending   },
   ];
 
   return (
@@ -95,10 +101,10 @@ export default function AdminDashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <KpiCard title="Total Students"   value={adminKPIs.totalStudents.toLocaleString()} sub="vs last term"  icon={Users}        trend="up"   trendVal="+12%"   color="bg-teal-100 text-teal-600"   />
-        <KpiCard title="Total Teachers"   value={String(adminKPIs.totalTeachers)}           sub="vs last month" icon={UserSquare2}   trend="up"   trendVal="+3"     color="bg-violet-100 text-violet-600"/>
-        <KpiCard title="Attendance Rate"  value={`${adminKPIs.attendanceRate}%`}            sub="vs yesterday"  icon={CalendarCheck} trend="up"   trendVal="+1.2%"  color="bg-amber-100 text-amber-600" />
-        <KpiCard title="Fee Collection"   value={`${adminKPIs.feePercent}%`}                sub="of target"     icon={Wallet}        trend="down" trendVal="-2%"    color="bg-rose-100 text-rose-600"   />
+        <KpiCard title="Total Students"   value={kpis.totalStudents.toLocaleString()} sub="vs last term"  icon={Users}        trend="up"   trendVal="+12%"   color="bg-teal-100 text-teal-600"   />
+        <KpiCard title="Total Teachers"   value={String(kpis.totalTeachers)}           sub="vs last month" icon={UserSquare2}   trend="up"   trendVal="+3"     color="bg-violet-100 text-violet-600"/>
+        <KpiCard title="Attendance Rate"  value={`${kpis.attendanceRate}%`}            sub="vs yesterday"  icon={CalendarCheck} trend="up"   trendVal="+1.2%"  color="bg-amber-100 text-amber-600" />
+        <KpiCard title="Fee Collection"   value="94%"                sub="of target"     icon={Wallet}        trend="down" trendVal="-2%"    color="bg-rose-100 text-rose-600"   />
       </div>
 
       {/* Charts Row 1 */}
@@ -113,8 +119,8 @@ export default function AdminDashboard() {
             </div>
             <span className="badge badge-success">Live</span>
           </div>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={attendanceTrend} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={tenantFeeMonthly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradPresent" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%"  stopColor="#14b8a6" stopOpacity={0.3} />
@@ -158,10 +164,10 @@ export default function AdminDashboard() {
           <div className="mt-4 bg-surface-50 rounded-xl p-3">
             <div className="flex justify-between text-xs text-surface-500 mb-1.5">
               <span>Collection Progress</span>
-              <span className="font-semibold text-primary-600">{adminKPIs.feePercent}%</span>
+              <span className="font-semibold text-primary-600">94%</span>
             </div>
             <div className="h-2 bg-surface-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all" style={{ width:`${adminKPIs.feePercent}%` }} />
+              <div className="h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all" style={{ width:`94%` }} />
             </div>
           </div>
         </div>
@@ -178,8 +184,8 @@ export default function AdminDashboard() {
               <p className="text-xs text-surface-500 mt-0.5">Average marks across all grades</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={examPerformance} margin={{ top:5, right:10, left:-20, bottom:0 }}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={tenantExamPerformance} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="subject" tick={{ fill:"#94a3b8", fontSize:12 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill:"#94a3b8", fontSize:12 }} axisLine={false} tickLine={false} domain={[0,100]} />
@@ -194,9 +200,9 @@ export default function AdminDashboard() {
         <div className="card p-6 flex flex-col gap-4">
           <h3 className="font-bold text-surface-900">Quick Stats</h3>
           {[
-            { label:"Active Classes",      value: adminKPIs.activeClasses, icon: BookOpen,     color:"text-primary-500"  },
-            { label:"Pending Fee Cases",   value: adminKPIs.pendingFees,   icon: AlertCircle,  color:"text-red-500"      },
-            { label:"Students Passed",     value: `${adminKPIs.examsPassed}/${adminKPIs.examsTotal}`, icon: CheckCircle2, color:"text-emerald-500" },
+            { label:"Active Classes",      value: 42, icon: BookOpen,     color:"text-primary-500"  },
+            { label:"Pending Fee Cases",   value: 15,   icon: AlertCircle,  color:"text-red-500"      },
+            { label:"Students Passed",     value: `450/480`, icon: CheckCircle2, color:"text-emerald-500" },
           ].map((s) => (
             <div key={s.label} className="flex items-center gap-4 p-3 bg-surface-50 rounded-xl border border-surface-100">
               <s.icon className={`w-5 h-5 ${s.color} flex-shrink-0`} />
@@ -225,17 +231,23 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Activities */}
-      <div className="card p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="font-bold text-surface-900">Recent Activities</h3>
-          <button className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">View all <ArrowRight className="w-3.5 h-3.5" /></button>
-        </div>
-        <div className="space-y-4">
-          {recentActivities.map((a, i) => (
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-surface-900">Recent Activity</h3>
+            <button className="text-primary-600 text-sm font-semibold hover:text-primary-700">View all</button>
+          </div>
+          <div className="relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-surface-200 before:to-transparent space-y-6">
+            {[
+              { id: "1", type: "student", title: "New Student Enrolled", desc: "Alex Johnson joined Grade 10", time: "2 hours ago" },
+              { id: "2", type: "fee", title: "Fee Collection", desc: "$1,200 collected for Grade 8", time: "4 hours ago" },
+              { id: "3", type: "exam", title: "Exam Scheduled", desc: "Mid-Term for Physics added", time: "1 day ago" },
+              { id: "4", type: "notice", title: "New Notice Posted", desc: "Summer break announcement", time: "2 days ago" },
+            ].map((a) => (
             <div key={a.id} className="flex items-start gap-3">
               <ActivityIcon type={a.type} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-surface-800 font-medium">{a.text}</p>
+                <p className="text-sm text-surface-800 font-medium">{a.title}</p>
+                <p className="text-xs text-surface-500">{a.desc}</p>
               </div>
               <div className="flex items-center gap-1 text-xs text-surface-400 flex-shrink-0">
                 <Clock className="w-3 h-3" />

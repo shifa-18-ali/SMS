@@ -1,10 +1,25 @@
 "use client";
 import { Clock, BookOpen, CheckCircle2, Users, ClipboardList } from "lucide-react";
-import { teacherSchedule, pendingAssignmentsToGrade, attendanceTrend } from "@/lib/mockData";
+import { attendanceTrend } from "@/lib/mockData";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useAuth } from "@/context/AuthContext";
+
+const teacherSchedule = [
+  { period: "1st", subject: "Mathematics", time: "08:30 AM", class: "10A", room: "Room 101" },
+  { period: "2nd", subject: "Mathematics", time: "09:30 AM", class: "10B", room: "Room 102" },
+  { period: "3rd", subject: "Free Period", time: "10:30 AM", class: "-", room: "-" },
+  { period: "4th", subject: "Advanced Math", time: "11:30 AM", class: "12A", room: "Lab 2" },
+];
+
+const pendingAssignmentsToGrade = [
+  { id: "1", title: "Algebra Mid-Term", class: "10A", due: "Yesterday", submitted: 28, total: 30 },
+  { id: "2", title: "Calculus Quiz", class: "12A", due: "Today", submitted: 15, total: 20 },
+];
 import Link from "next/link";
 
 export default function TeacherDashboard() {
+  const { user } = useAuth();
+  const tenantAttendanceTrend = user?.role === "super-admin" ? attendanceTrend : attendanceTrend.filter(a => a.schoolId === user?.schoolId);
   return (
     <div className="space-y-6 pb-8">
       {/* Welcome */}
@@ -92,7 +107,7 @@ export default function TeacherDashboard() {
           <div className="card p-6">
             <h3 className="font-bold text-surface-900 mb-4">Class Attendance This Week</h3>
             <ResponsiveContainer width="100%" height={140}>
-              <BarChart data={attendanceTrend} margin={{ top:5, right:5, left:-25, bottom:0 }}>
+              <BarChart data={tenantAttendanceTrend} margin={{ top:5, right:5, left:-25, bottom:0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis dataKey="day" tick={{ fill:"#94a3b8", fontSize:11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill:"#94a3b8", fontSize:11 }} axisLine={false} tickLine={false} domain={[80,100]} />

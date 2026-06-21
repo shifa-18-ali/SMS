@@ -2,9 +2,12 @@
 import { useState } from "react";
 import { Bell, Plus, Users, Calendar, ChevronRight } from "lucide-react";
 import { notices } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 
 export default function NoticesPage() {
-  const [selected, setSelected] = useState(notices[0]);
+  const { user } = useAuth();
+  const tenantNotices = user?.role === "super-admin" ? notices : notices.filter(n => n.schoolId === user?.schoolId);
+  const [selected, setSelected] = useState(tenantNotices[0] || notices[0]);
 
   const typeColor: Record<string, string> = {
     Event:   "badge-info",
@@ -36,10 +39,10 @@ export default function NoticesPage() {
         <div className="card overflow-hidden">
           <div className="p-4 border-b border-surface-100 bg-surface-50/50 flex items-center gap-2">
             <Bell className="w-4 h-4 text-primary-500" />
-            <span className="font-semibold text-surface-800">All Notices ({notices.length})</span>
+            <span className="font-semibold text-surface-800">All Notices ({tenantNotices.length})</span>
           </div>
           <div className="divide-y divide-surface-50">
-            {notices.map(n=>(
+            {tenantNotices.map(n=>(
               <button key={n.id} onClick={()=>setSelected(n)} className={`w-full text-left p-4 hover:bg-surface-50 transition-colors ${selected.id===n.id?"bg-primary-50 border-l-2 border-l-primary-500":""}`}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className={`badge ${typeColor[n.type]}`}>{n.type}</span>

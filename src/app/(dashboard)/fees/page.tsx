@@ -2,15 +2,20 @@
 import { useState } from "react";
 import { CreditCard, Download, Plus, TrendingUp } from "lucide-react";
 import { feeTransactions, feeMonthly } from "@/lib/mockData";
+import { useAuth } from "@/context/AuthContext";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function FeesPage() {
+  const { user } = useAuth();
+  const tenantFeeTransactions = user?.role === "super-admin" ? feeTransactions : feeTransactions.filter(f => f.schoolId === user?.schoolId);
+  const tenantFeeMonthly = user?.role === "super-admin" ? feeMonthly : feeMonthly.filter(f => f.schoolId === user?.schoolId);
+
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const filtered = feeTransactions.filter(t => filterStatus === "All" || t.status === filterStatus);
+  const filtered = tenantFeeTransactions.filter(t => filterStatus === "All" || t.status === filterStatus);
 
-  const totalCollected = feeTransactions.filter(t=>t.status==="Paid").reduce((s,t)=>s+t.amount,0);
-  const totalPending   = feeTransactions.filter(t=>t.status!=="Paid").reduce((s,t)=>s+t.amount,0);
+  const totalCollected = tenantFeeTransactions.filter(t=>t.status==="Paid").reduce((s,t)=>s+t.amount,0);
+  const totalPending   = tenantFeeTransactions.filter(t=>t.status!=="Paid").reduce((s,t)=>s+t.amount,0);
 
   return (
     <div className="space-y-5 pb-8">
@@ -36,11 +41,11 @@ export default function FeesPage() {
         <div className="rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-6 text-white shadow-md">
           <p className="text-amber-100 text-sm mb-1 font-medium">Outstanding Dues</p>
           <p className="text-4xl font-extrabold">${totalPending.toLocaleString()}</p>
-          <p className="text-sm text-amber-100 mt-2">{feeTransactions.filter(t=>t.status!=="Paid").length} students pending</p>
+          <p className="text-sm text-amber-100 mt-2">{tenantFeeTransactions.filter(t=>t.status!=="Paid").length} students pending</p>
         </div>
         <div className="rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 p-6 text-white shadow-md">
           <p className="text-red-100 text-sm mb-1 font-medium">Overdue Cases</p>
-          <p className="text-4xl font-extrabold">{feeTransactions.filter(t=>t.status==="Overdue").length}</p>
+          <p className="text-4xl font-extrabold">{tenantFeeTransactions.filter(t=>t.status==="Overdue").length}</p>
           <button className="mt-2 text-sm bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg transition-colors">Send Reminders</button>
         </div>
       </div>
@@ -49,7 +54,7 @@ export default function FeesPage() {
       <div className="card p-6">
         <h3 className="font-bold text-surface-900 mb-5">Monthly Fee Collection</h3>
         <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={feeMonthly} margin={{top:5,right:10,left:0,bottom:0}}>
+          <BarChart data={tenantFeeMonthly} margin={{top:5,right:10,left:0,bottom:0}}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
             <XAxis dataKey="month" tick={{fill:"#94a3b8",fontSize:12}} axisLine={false} tickLine={false} />
             <YAxis tick={{fill:"#94a3b8",fontSize:12}} axisLine={false} tickLine={false} tickFormatter={v=>`$${v/1000}K`} />
