@@ -43,7 +43,7 @@ export default function TeacherDashboard() {
         <div className="card p-6">
           <h3 className="font-bold text-surface-900 mb-5 flex items-center gap-2">
             <Clock className="w-5 h-5 text-violet-500" />
-            Today's Schedule
+            Todays Schedule
           </h3>
           <div className="space-y-3">
             {teacherSchedule.map((s, i) => (
