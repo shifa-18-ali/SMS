@@ -80,7 +80,7 @@ export default function AdminDashboard() {
       <div className="rounded-2xl bg-gradient-to-r from-primary-600 via-primary-500 to-teal-400 p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-glow">
         <div>
           <p className="text-primary-100 text-sm font-medium mb-1">Good evening, Administrator 👋</p>
-          <h2 className="text-2xl font-extrabold">Here's what's happening at EduNexus today</h2>
+          <h2 className="text-2xl font-extrabold">&apos Heres what shappening at EduNexus today &apos</h2>
           <p className="text-primary-100 text-sm mt-1">Thursday, June 19, 2026</p>
         </div>
         <div className="flex gap-3">
